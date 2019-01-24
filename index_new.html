@@ -143,6 +143,7 @@
 
 					//object.position.y = - 95;
 					scene.add( object );
+					render()
 
 				}
 
@@ -177,12 +178,6 @@
 
 				var loader = new THREE.OBJLoader( manager );
 
-				loader.load( 'cube.obj', function ( obj ) {
-
-					object = obj;
-
-				}, onProgress, onError);
-
 
 				// renderer
 
@@ -200,6 +195,12 @@
 				//
 
 				render();
+				loader.load( 'cube.obj', function ( obj ) {
+
+					object = obj;
+
+				}, onProgress, onError);
+
 
 			}
 
