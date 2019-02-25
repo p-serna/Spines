@@ -145,6 +145,10 @@
 					scene.add( object );
 					render()
 
+					var bb = new THREE.Box3()
+					bb.setFromObject(object);
+					bb.center(controls.target);
+
 				}
 
 				var manager = new THREE.LoadingManager( loadModel );
