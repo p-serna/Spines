@@ -1,0 +1,209 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Spine 1</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			html, body {
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+			}
+			
+			body {
+				color: #000;
+				font-family:Monospace;
+				font-size:13px;
+				text-align:center;
+				font-weight: bold;
+
+				background-color: #fff;
+				margin: 0px;
+			}
+
+			#info {
+				color:#000;
+				position: absolute;
+				top: 0px; width: 100%;
+				padding: 5px;
+				box-sizing: border-box;
+			}
+
+			a {
+				color: red;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="info">
+			<a href="http://threejs.org" target="_blank" rel="noopener">three.js controls:</a><br />
+			MOVE mouse &amp; press LEFT/A: rotate, MIDDLE/S: zoom, RIGHT/D: pan
+		</div>
+
+
+		<script src="https://threejs.org/build/three.js"></script>
+		<script src="https://threejs.org/examples/js/controls/TrackballControls.js"></script>
+		<script src="https://threejs.org/examples/js/WebGL.js"></script>
+		<script src="https://threejs.org/examples/js/libs/stats.min.js"></script>
+		<script src="https://threejs.org/examples/js/loaders/OBJLoader.js"></script>
+
+
+
+		<script>
+
+			var camera, controls, scene, renderer, stats;
+			var geometry, material, mesh;
+
+
+			init();
+			animate();
+
+			function init() {
+
+
+				// Camera parameters
+				camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 1, 200 );
+
+				camera.position.x = -2.1,
+				camera.position.z = 1.65;
+				camera.position.y = -3;
+
+				camera.FocalLength = 11.6;
+				
+				// world
+
+				scene = new THREE.Scene();
+				scene.background = new THREE.Color( 0xcccccc );
+				scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
+
+				// lights
+
+				var light = new THREE.DirectionalLight( 0xffffff );
+				light.position.set( 1, 1, 1 );
+				scene.add( light );
+
+				var light = new THREE.DirectionalLight( 0x002288 );
+				light.position.set( - 1, - 1, - 1 );
+				scene.add( light );
+
+				var light = new THREE.AmbientLight( 0x222222 );
+				scene.add( light );
+				scene.add( camera );
+
+				// manager
+
+				function loadModel() {
+
+					object.traverse( function ( child ) {
+
+						if ( child.isMesh ) child.material.map = texture;
+
+					} );
+
+					//object.position.y = - 95;
+					scene.add( object );
+					render()
+
+					var bb = new THREE.Box3()
+					bb.setFromObject(object);
+					bb.center(controls.target);
+
+				}
+
+				var manager = new THREE.LoadingManager( loadModel );
+
+				manager.onProgress = function ( item, loaded, total ) {
+
+					console.log( item, loaded, total );
+
+				};
+
+				// texture
+
+				var textureLoader = new THREE.TextureLoader( manager );
+
+				var texture = textureLoader.load( 'fluctuations.png' );
+
+				// model
+
+				function onProgress( xhr ) {
+
+					if ( xhr.lengthComputable ) {
+
+						var percentComplete = xhr.loaded / xhr.total * 100;
+						console.log( 'model ' + Math.round( percentComplete, 2 ) + '% downloaded' );
+
+					}
+
+				}
+
+				function onError() {}
+
+				var loader = new THREE.OBJLoader( manager );
+
+
+				// renderer
+
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				document.body.appendChild( renderer.domElement );
+
+				stats = new Stats();
+				document.body.appendChild( stats.dom );
+
+				// Controls
+				controls = new THREE.TrackballControls( camera , renderer.domElement);
+
+				controls.rotateSpeed = 1.0;
+				controls.zoomSpeed = 1.2;
+				controls.panSpeed = 0.8;
+
+				controls.noZoom = false;
+				controls.noPan = false;
+
+				controls.staticMoving = true;
+				controls.dynamicDampingFactor = 0.3;
+
+				controls.keys = [ 65, 83, 68 ];
+
+				controls.addEventListener( 'change', render );
+
+
+
+				render();
+				loader.load( '../3dmods/spine01.obj', function ( obj ) {
+					object = obj;
+				}, onProgress, onError);
+
+
+			}
+
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+				
+				controls.update();
+				
+				stats.update();
+
+				renderer.render( scene, camera );
+			}
+
+			function render() {
+
+				renderer.render( scene, camera );
+
+			}
+
+
+		</script>
+
+	</body>
+</html>
